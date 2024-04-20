@@ -69,14 +69,31 @@ def train(data, labels, learning_rate=0.01, epochs=100):
     return weights, biases
 
 def test(data, labels, weights, biases):
-    # Implement test method
+    correct_predictions = 0
+    total_samples = len(data)
+
+    for i in range(total_samples):
+        input_vector = data[i]
+        expected_label = labels[i]
+
+        net_input = np.dot(weights, input_vector) + biases
+        output = net_input
+
+        predicted_language_index = np.argmax(output)
+        languages = ['English', 'German', 'Polish', 'Spanish']
+        predicted_language = languages[predicted_language_index]
+
+        if predicted_language == expected_label:
+            correct_predictions += 1
+            print(f"Expected: {expected_label} | Predicted: {predicted_language}")
+        else:
+            print(f"Expected: {expected_label} | Predicted: {predicted_language}")
+
+    accuracy = correct_predictions / total_samples
+    print(f"Test Accuracy: {accuracy * 100:.2f}%")
+    return accuracy
 
 train_input_vectors, train_labels = loadData(lang_train)
 test_input_vectors, test_labels = loadData(lang_test)
-train(train_input_vectors, train_labels)
-
-print("Checking reading line logic...")
-for i in range(3):
-    print(f"Sample {i + 1}:")
-    print(f"Label: {train_labels[i]}")
-    print(f"Input vector: {train_input_vectors[i]}")
+weights, biases = train(train_input_vectors, train_labels)
+test(test_input_vectors, test_labels, weights, biases)

@@ -1,8 +1,15 @@
 import csv
 import numpy as np
 
-lang_train = 'res/lang.train.csv'
-lang_test = 'res/lang.test.csv'
+lang_train = '/Users/pjotr/PycharmProjects/Single-Layer-Network/res/lang.train.csv'
+lang_test = '/Users/pjotr/PycharmProjects/Single-Layer-Network/res/lang.test.csv'
+
+def perceptron(vec, weights, biases):
+    # Calculate the net input for each perceptron
+    net_input = np.dot(weights, vec) + biases
+    # Linear activation function
+    activation = net_input
+    return activation
 
 def loadData(file):
     vectors = []
@@ -59,8 +66,9 @@ def train(data, labels, learning_rate=0.01, epochs=100):
 
             # Calculate net value for each perceptron
             net_input = np.dot(weights, input_vector) + biases
-            activation = net_input # activation function: Linear
-            error = expected_output - activation # error
+            # Activation function: Linear
+            activation = net_input
+            error = expected_output - activation
 
             # Update weights and biases (using error and learn rate)
             weights += learning_rate * np.outer(error, input_vector)
@@ -78,13 +86,17 @@ def test(data, labels, weights, biases):
     total = len(data)
 
     for i in range(total):
+        # Get the input vector and expected label
         input_vector = data[i]
         expected_label = labels[i]
 
-        net_input = np.dot(weights, input_vector) + biases
-        output = net_input
+        # Use perceptron to get output
+        output = perceptron(input_vector, weights, biases)
 
+        # Find the index of the perceptron with the maximum activation
         predicted_language_index = np.argmax(output)
+
+        # Map the index to the corresponding language
         languages = ['English', 'German', 'Polish', 'Spanish']
         predicted_language = languages[predicted_language_index]
 
@@ -94,29 +106,40 @@ def test(data, labels, weights, biases):
         else:
             print(f"(-) Expected: {expected_label} | Predicted: {predicted_language} <----")
 
+    # Calculate the test accuracy as the percentage of correct predictions
     accuracy = correct / total
-    print(f"Test Accuracy: {accuracy * 100:.2f}%")
+    print(f"Accuracy: {accuracy * 100:.2f}%")
     return accuracy
 
 def classify(text, weights, biases):
+    # Initialize frequency array for the text
     freq_array = [0] * 26
+
+    # Calculate letter frequencies in the input text
     for char in text:
         index = ord(char) - ord('a')
         if 0 <= index < 26:
             freq_array[index] += 1
 
+    # Convert the frequency array to a numpy array
     input_vector = np.array(freq_array)
+
+    # Normalize the input vector
     norm = np.linalg.norm(input_vector)
     if norm != 0:
         input_vector = input_vector / norm
 
-    net_input = np.dot(weights, input_vector) + biases
-    output = net_input
+    # Use perceptron to get output
+    output = perceptron(input_vector, weights, biases)
 
+    # Find the index of the perceptron with the max activation
     predicted_language_index = np.argmax(output)
+
+    # Map the index to the corresponding language
     languages = ['English', 'German', 'Polish', 'Spanish']
     predicted_language = languages[predicted_language_index]
 
+    # Return the predicted language
     return predicted_language
 
 isTrained = False

@@ -92,26 +92,56 @@ def test(data, labels, weights, biases):
     print(f"Test Accuracy: {accuracy * 100:.2f}%")
     return accuracy
 
+def classify(text, weights, biases):
+    frequency_array = [0] * 26
+    for char in text:
+        index = ord(char) - ord('a')
+        if 0 <= index < 26:
+            frequency_array[index] += 1
+
+    input_vector = np.array(frequency_array)
+    norm = np.linalg.norm(input_vector)
+    if norm != 0:
+        input_vector = input_vector / norm
+
+    net_input = np.dot(weights, input_vector) + biases
+    output = net_input
+
+    predicted_language_index = np.argmax(output)
+    languages = ['English', 'German', 'Polish', 'Spanish']
+    predicted_language = languages[predicted_language_index]
+
+    return predicted_language
+
 isTrained = False
 while True:
     print("----------MENU----------")
     print("(1) Train Model")
     print("(2) Test Model")
-    print("(3) Exit")
-    choice = int(input("Enter your choice: "))
+    print("(3) Classify input text")
+    print("(4) Exit")
     print("------------------------")
+    choice = int(input("Enter your choice: "))
     if choice == 1:
         train_input_vectors, train_labels = loadData(lang_train)
         weights, biases = train(train_input_vectors, train_labels)
         isTrained = True
     if choice == 2:
         if(isTrained == False):
-            print("Model is not trained yet!")
+            print("Model not trained yet")
             continue
         else:
             test_input_vectors, test_labels = loadData(lang_test)
             test(test_input_vectors, test_labels, weights, biases)
     if choice == 3:
+        if (isTrained == False):
+            print("Model not trained yet")
+            continue
+        else:
+            text = input("Enter the text to classify: ")
+            print("Predicted language: " + classify(text, weights, biases))
+    if choice == 4:
+        print("Closing...")
         exit()
 
 # train_input_vectors, train_labels = loadData(lang_train)

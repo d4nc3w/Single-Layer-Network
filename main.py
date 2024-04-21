@@ -63,8 +63,7 @@ def train(data, labels, learning_rate=0.01, epochs=100):
 
             total_loss += np.sum(error ** 2)
 
-        if epoch % 10 == 0:
-            print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+        print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
 
     return weights, biases
 
@@ -93,7 +92,29 @@ def test(data, labels, weights, biases):
     print(f"Test Accuracy: {accuracy * 100:.2f}%")
     return accuracy
 
-train_input_vectors, train_labels = loadData(lang_train)
-test_input_vectors, test_labels = loadData(lang_test)
-weights, biases = train(train_input_vectors, train_labels)
-test(test_input_vectors, test_labels, weights, biases)
+isTrained = False
+while True:
+    print("----------MENU----------")
+    print("(1) Train Model")
+    print("(2) Test Model")
+    print("(3) Exit")
+    choice = int(input("Enter your choice: "))
+    print("------------------------")
+    if choice == 1:
+        train_input_vectors, train_labels = loadData(lang_train)
+        weights, biases = train(train_input_vectors, train_labels)
+        isTrained = True
+    if choice == 2:
+        if(isTrained == False):
+            print("Model is not trained yet!")
+            continue
+        else:
+            test_input_vectors, test_labels = loadData(lang_test)
+            test(test_input_vectors, test_labels, weights, biases)
+    if choice == 3:
+        exit()
+
+# train_input_vectors, train_labels = loadData(lang_train)
+# test_input_vectors, test_labels = loadData(lang_test)
+# weights, biases = train(train_input_vectors, train_labels)
+# test(test_input_vectors, test_labels, weights, biases)

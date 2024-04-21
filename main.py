@@ -20,14 +20,14 @@ def loadData(file):
             text = simplifyText(text)
 
             # Create a frequency array for the text
-            frequency_array = [0] * 26
+            freq_array = [0] * 26
             for char in text:
                 index = ord(char) - ord('a')
                 if 0 <= index < 26:
-                    frequency_array[index] += 1
+                    freq_array[index] += 1
 
             # Convert to numpy
-            input_vector = np.array(frequency_array)
+            input_vector = np.array(freq_array)
             # Normalize vec
             norm = np.linalg.norm(input_vector)
             if norm != 0:
@@ -41,26 +41,32 @@ def train(data, labels, learning_rate=0.01, epochs=100):
     num_languages = 4
     input_size = 26
 
+    # Initialization of weights/biases
     weights = np.random.rand(num_languages, input_size)
     biases = np.zeros(num_languages)
 
     for epoch in range(epochs):
         total_loss = 0
+        # Loop through all samples
         for i in range(len(data)):
             input_vector = data[i]
             expected_label = labels[i]
 
+            # One-hot encoding
             expected_output = np.zeros(num_languages)
             language_index = ['English', 'German', 'Polish', 'Spanish'].index(expected_label)
             expected_output[language_index] = 1
 
+            # Calculate net value for each perceptron
             net_input = np.dot(weights, input_vector) + biases
-            activation = net_input
-            error = expected_output - activation
+            activation = net_input # activation function: Linear
+            error = expected_output - activation # error
 
+            # Update weights and biases (using error and learn rate)
             weights += learning_rate * np.outer(error, input_vector)
             biases += learning_rate * error
 
+            # Calculating loss
             total_loss += np.sum(error ** 2)
 
         print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
@@ -68,10 +74,10 @@ def train(data, labels, learning_rate=0.01, epochs=100):
     return weights, biases
 
 def test(data, labels, weights, biases):
-    correct_predictions = 0
-    total_samples = len(data)
+    correct = 0
+    total = len(data)
 
-    for i in range(total_samples):
+    for i in range(total):
         input_vector = data[i]
         expected_label = labels[i]
 
@@ -83,23 +89,23 @@ def test(data, labels, weights, biases):
         predicted_language = languages[predicted_language_index]
 
         if predicted_language == expected_label:
-            correct_predictions += 1
-            print(f"Expected: {expected_label} | Predicted: {predicted_language}")
+            correct += 1
+            print(f"(+) Expected: {expected_label} | Predicted: {predicted_language}")
         else:
-            print(f"Expected: {expected_label} | Predicted: {predicted_language}")
+            print(f"(-) Expected: {expected_label} | Predicted: {predicted_language} <----")
 
-    accuracy = correct_predictions / total_samples
+    accuracy = correct / total
     print(f"Test Accuracy: {accuracy * 100:.2f}%")
     return accuracy
 
 def classify(text, weights, biases):
-    frequency_array = [0] * 26
+    freq_array = [0] * 26
     for char in text:
         index = ord(char) - ord('a')
         if 0 <= index < 26:
-            frequency_array[index] += 1
+            freq_array[index] += 1
 
-    input_vector = np.array(frequency_array)
+    input_vector = np.array(freq_array)
     norm = np.linalg.norm(input_vector)
     if norm != 0:
         input_vector = input_vector / norm

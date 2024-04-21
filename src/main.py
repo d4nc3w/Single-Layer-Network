@@ -35,7 +35,7 @@ def loadData(file):
 
             # Convert to numpy
             input_vector = np.array(freq_array)
-            # Normalize vec
+            # Normalize vec (Euclidean norm)
             norm = np.linalg.norm(input_vector)
             if norm != 0:
                 input_vector = input_vector / norm
@@ -45,11 +45,10 @@ def loadData(file):
     return vectors, labels
 
 def train(data, labels, learning_rate=0.01, epochs=100):
-    num_languages = 4
-    input_size = 26
+    num_languages = len(np.unique(labels))
 
     # Initialization of weights/biases
-    weights = np.random.rand(num_languages, input_size)
+    weights = np.random.rand(num_languages, 26)
     biases = np.zeros(num_languages)
 
     for epoch in range(epochs):
@@ -59,7 +58,7 @@ def train(data, labels, learning_rate=0.01, epochs=100):
             input_vector = data[i]
             expected_label = labels[i]
 
-            # One-hot encoding
+            # One-hot encoding [0, 0, 0, 0] -> for example: [0, 1, 0, 0]
             expected_output = np.zeros(num_languages)
             language_index = ['English', 'German', 'Polish', 'Spanish'].index(expected_label)
             expected_output[language_index] = 1
@@ -71,8 +70,9 @@ def train(data, labels, learning_rate=0.01, epochs=100):
             error = expected_output - activation
 
             # Update weights and biases (using error and learn rate)
-            weights += learning_rate * np.outer(error, input_vector)
-            biases += learning_rate * error
+            for j in range(num_languages):
+                weights[j] += learning_rate * error[j] * input_vector
+                biases[j] += learning_rate * error[j]
 
             # Calculating loss
             total_loss += np.sum(error ** 2)
@@ -124,7 +124,7 @@ def classify(text, weights, biases):
     # Convert the frequency array to a numpy array
     input_vector = np.array(freq_array)
 
-    # Normalize the input vector
+    # Normalize the input vector (Euclidean norm)
     norm = np.linalg.norm(input_vector)
     if norm != 0:
         input_vector = input_vector / norm
@@ -171,6 +171,7 @@ while True:
             print("Predicted language: " + classify(text, weights, biases))
     if choice == 4:
         print("Closing...")
+        print("------------------------")
         exit()
 
 # train_input_vectors, train_labels = loadData(lang_train)

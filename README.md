@@ -21,13 +21,16 @@ Load Data Function
       labels = []
   
     def simplifyText(text):
-        cleaned_text = ''.join([char for char in text if char.isalpha()]).lower()
-        return cleaned_text
+        filtered_text = []
+        for char in text:
+            if char.isalpha():
+                filtered_text.append(char.lower())
+        simplified_text = ''.join(filtered_text)
+        return simplified_text
     
     with open(file, 'r', newline='', encoding='utf-8') as file:
         reader = csv.reader(file)
         for line in reader:
-            # Separate label from text
             label, text = line[0], line[1]
             text = simplifyText(text)
             
@@ -56,7 +59,8 @@ Load Data Function
 Train Function 
 
     def train(data, labels, learning_rate=0.01, epochs=100):
-        num_languages = len(np.unique(labels))
+        uniqueLang = set(labels)
+        numOfLang = len(uniqueLang)
     
     weights = np.random.rand(num_languages, 26)
     biases = np.zeros(num_languages)
@@ -72,12 +76,12 @@ Train Function
             language_index = ['English', 'German', 'Polish', 'Spanish'].index(expected_label)
             expected_output[language_index] = 1
             
-            net_input = np.dot(weights, input_vector) + biases
-            activation = net_input
+            activation = perceptron(input_vector, weights, biases)
             error = expected_output - activation
-            
-            weights += learning_rate * np.outer(error, input_vector)
-            biases += learning_rate * error
+
+             for j in range(numOfLang):
+                weights[j] += learning_rate * error[j] * input_vector
+                biases[j] += learning_rate * error[j]
             
             total_loss += np.sum(error ** 2)
         

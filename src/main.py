@@ -53,8 +53,8 @@ def train(data, labels, learning_rate=0.01, epochs=100):
     numOfLang = len(uniqueLang)
 
     # Initialization of weights/biases
-    weights = np.random.rand(numOfLang, 26)
-    biases = np.zeros(numOfLang)
+    weights = np.random.rand(numOfLang, 26) #2D Array
+    biases = np.zeros(numOfLang) #1D Array
 
     for epoch in range(epochs):
         total_loss = 0
@@ -69,9 +69,7 @@ def train(data, labels, learning_rate=0.01, epochs=100):
             expected_output[language_index] = 1
 
             # Calculate net value for each perceptron
-            net_input = np.dot(weights, input_vector) + biases
-            # Activation function: Linear
-            activation = net_input
+            activation = perceptron(input_vector, weights, biases)
             error = expected_output - activation
 
             # Update weights and biases (using error and learn rate)

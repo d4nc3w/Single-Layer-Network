@@ -40,7 +40,7 @@ def loadData(file):
             # Convert to numpy
             input_vector = np.array(freq_array)
             # Normalize vec (Euclidean length)
-            norm = np.linalg.norm(input_vector)
+            norm = np.linalg.norm(input_vector)  # == norm = sqrt(sum(input_vector**2))
             if norm != 0:
                 input_vector = input_vector / norm
 

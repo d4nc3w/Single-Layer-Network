@@ -16,8 +16,12 @@ def loadData(file):
     labels = []
     def simplifyText(text):
         # Keep only letters A-Z and convert to lowercase
-        cleaned_text = ''.join([char for char in text if char.isalpha()]).lower()
-        return cleaned_text
+        filtered_text = []
+        for char in text:
+            if char.isalpha():
+                filtered_text.append(char.lower())
+        simplified_text = ''.join(filtered_text)
+        return simplified_text
 
     with open(file, 'r', newline='', encoding='utf-8') as file:
         reader = csv.reader(file)
@@ -35,7 +39,7 @@ def loadData(file):
 
             # Convert to numpy
             input_vector = np.array(freq_array)
-            # Normalize vec (Euclidean norm)
+            # Normalize vec (Euclidean length)
             norm = np.linalg.norm(input_vector)
             if norm != 0:
                 input_vector = input_vector / norm
@@ -45,11 +49,12 @@ def loadData(file):
     return vectors, labels
 
 def train(data, labels, learning_rate=0.01, epochs=100):
-    num_languages = len(np.unique(labels))
+    uniqueLang = set(labels)
+    numOfLang = len(uniqueLang)
 
     # Initialization of weights/biases
-    weights = np.random.rand(num_languages, 26)
-    biases = np.zeros(num_languages)
+    weights = np.random.rand(numOfLang, 26)
+    biases = np.zeros(numOfLang)
 
     for epoch in range(epochs):
         total_loss = 0
@@ -59,7 +64,7 @@ def train(data, labels, learning_rate=0.01, epochs=100):
             expected_label = labels[i]
 
             # One-hot encoding [0, 0, 0, 0] -> for example: [0, 1, 0, 0]
-            expected_output = np.zeros(num_languages)
+            expected_output = np.zeros(numOfLang)
             language_index = ['English', 'German', 'Polish', 'Spanish'].index(expected_label)
             expected_output[language_index] = 1
 
@@ -70,7 +75,7 @@ def train(data, labels, learning_rate=0.01, epochs=100):
             error = expected_output - activation
 
             # Update weights and biases (using error and learn rate)
-            for j in range(num_languages):
+            for j in range(numOfLang):
                 weights[j] += learning_rate * error[j] * input_vector
                 biases[j] += learning_rate * error[j]
 
